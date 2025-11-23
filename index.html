@@ -335,6 +335,7 @@
 
         // --- API & Retry Utility ---
         const API_KEY = ""; 
+        const API_URL_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
         const MAX_RETRIES = 3;
         const INITIAL_DELAY = 1000;
 
@@ -510,17 +511,25 @@
 
         function generateTourCard(tour, type) {
             if (type === 'package') {
-                // Filter: Use index 0,1,2,3 (Sapanca, Bursa, Sile, Islands) AND index 5 (Bosphorus) for the main list
-                const mainStops = [individualTours[0], individualTours[1], individualTours[2], individualTours[3], individualTours[5]];
+                // Filter: Use index 0,1,2,3 (Sapanca, Bursa, Sile, Islands), 4 (Yalova), 5 (Bosphorus)
+                const mainStops = [individualTours[0], individualTours[1], individualTours[2], individualTours[3], individualTours[4], individualTours[5]];
 
-                const stopsHtml = mainStops.map((stop, i) => `
+                const stopsHtml = mainStops.map((stop, i) => {
+                    let note = '';
+                    if (stop.name_ar.includes("يلوا")) {
+                        note = `<span class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full mr-2 font-bold">فقط سبت</span>`;
+                    }
+                    return `
                     <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
                         <div class="flex items-center gap-3">
                             <span class="w-6 h-6 rounded-full bg-yellow-400 text-indigo-900 flex items-center justify-center text-xs font-bold">${i + 1}</span>
-                            <span class="font-bold text-slate-700 text-sm">${stop.name_ar}</span>
+                            <div class="flex items-center">
+                                <span class="font-bold text-slate-700 text-sm">${stop.name_ar}</span>
+                                ${note}
+                            </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
 
                 return `
                     <div class="golden-ticket rounded-[2.5rem] shadow-2xl p-0 text-slate-900 mb-10 relative transform hover:scale-[1.01] transition-all duration-500 pop-in">
@@ -544,13 +553,6 @@
                             
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 ${stopsHtml}
-                                <!-- Bonus item entry -->
-                                <div class="flex items-center justify-between p-3 bg-yellow-100 rounded-xl border border-yellow-200 hover:bg-yellow-50 transition-colors sm:col-span-2">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-bold">+</span>
-                                        <span class="font-bold text-slate-800 text-sm">رحلة يلوا (مجانًا إذا صادف يوم السبت)</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
